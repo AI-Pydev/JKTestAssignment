@@ -8,11 +8,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 
 
-summary = GenerateSummary()
 
 class SummarizeBookView(View):
     def get(self, request, book_id):
         try:
+            summary = GenerateSummary()
             book = Books.objects.get(id=book_id)
             summary = summary.generate_summary(book.title + " " + book.author)
             return JsonResponse({'summary': summary})
