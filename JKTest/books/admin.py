@@ -1,15 +1,15 @@
 from django.contrib import admin
 from .models import Books, Review
-from .llama3_model import generate_summary
+from .llama3_model import GenerateSummary
 
+summary = GenerateSummary()
 
 @admin.register(Books)
 class BookAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'genre', 'year_published')
-
     def save_model(self, request, obj, form, change):
         if not change:  # Only generate summary when a new book is added
-            obj.summary = generate_summary(obj.title + " " + obj.author)  # Adjust the content used for summary
+            obj.summary = summary.generate_summary(obj.title + " " + obj.author)  # Adjust the content used for summary
         super().save_model(request, obj, form, change)
 
 @admin.register(Review)
