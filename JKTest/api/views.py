@@ -5,9 +5,14 @@ from books.models import Books, Review, UserPreference
 from rest_framework.views import APIView
 from .serializers import BookSerializer, ReviewSerializer, UserPreferenceSerializer
 from django.db.models import Q
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from books.llama3_model import GenerateSummary
 
 
 class BookListCreateView(generics.ListCreateAPIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = Books.objects.all()  
     serializer_class = BookSerializer  
 
@@ -83,3 +88,13 @@ class UserPreferenceView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class GenerateSummaryView(APIView):
+    def post(self, request, *args, **kwargs):
+        content = request.data.get('content')
+        if not content:
+            return Response({'error': 'Content is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        summary = GenerateSummary()
+        summary_txt = summary.generate_summary(content)
+        return Response({'summary': summary_txt}, status=status.HTTP_200_OK)
